@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "../api/axios";
 
 interface Message {
@@ -17,8 +17,9 @@ function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  // Load chat history
+  // ---------------- LOAD HISTORY ----------------
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -36,14 +37,20 @@ function ChatBox() {
         });
 
         setMessages(formatted);
-      } catch (err) {
-        console.log("No history yet");
+      } catch {
+        console.log("No previous chat history yet");
       }
     };
 
     fetchHistory();
   }, []);
 
+  // ---------------- AUTO SCROLL ----------------
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // ---------------- SEND MESSAGE ----------------
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -57,11 +64,11 @@ function ChatBox() {
 
       const botMsg: Message = {
         role: "bot",
-        text: res.data.reply,
+        text: formatMedicalResponse(res.data.reply),
       };
 
       setMessages((prev) => [...prev, botMsg]);
-    } catch (err) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         { role: "bot", text: "AI server not responding." },
@@ -71,12 +78,27 @@ function ChatBox() {
     setLoading(false);
   };
 
+  // ---------------- FORMAT RESPONSE ----------------
+  function formatMedicalResponse(text: string) {
+    if (!text) return "";
+
+    return text
+      .replace(/\*\*/g, "") // remove markdown bold
+      .replace(/\n/g, "\n") // keep new lines
+      .trim();
+  }
+
+  // ---------------- ENTER KEY ----------------
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") sendMessage();
+  };
+
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-4">
       <h2 className="text-xl font-semibold mb-3">AI Health Assistant</h2>
 
       {/* Chat Messages */}
-      <div className="h-96 overflow-y-auto border rounded p-3 mb-4 bg-gray-50">
+      <div className="h-96 overflow-y-auto border rounded p-3 mb-4 bg-gray-50 whitespace-pre-wrap">
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -85,7 +107,7 @@ function ChatBox() {
             }`}
           >
             <div
-              className={`px-4 py-2 rounded-lg max-w-xs ${
+              className={`px-4 py-2 rounded-lg max-w-md text-sm whitespace-pre-wrap ${
                 msg.role === "user"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-black"
@@ -99,6 +121,8 @@ function ChatBox() {
         {loading && (
           <div className="text-gray-400 text-sm">AI is thinking...</div>
         )}
+
+        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
@@ -108,14 +132,16 @@ function ChatBox() {
           value={input}
           placeholder="Describe your symptoms..."
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           className="flex-1 border rounded px-3 py-2"
         />
 
         <button
           onClick={sendMessage}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
         >
-          Send
+          {loading ? "Thinking..." : "Send"}
         </button>
       </div>
     </div>

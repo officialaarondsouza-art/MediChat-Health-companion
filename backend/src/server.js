@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import symptomRoutes from "./routes/symptomRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
+app.use("/api/chat",chatRoutes);
 app.use("/api/symptoms", symptomRoutes);
 
 
