@@ -32,7 +32,7 @@ Built using **React, Node.js, Express, Prisma, PostgreSQL, and Gemini API**
 
 ### Login Page
 
-![Login](./Screenshot/Screenshot 2026-04-24 204614.png)
+![Login](./Screenshot/Screenshot_2026-04-24_204614.png)
 
 ---
 
