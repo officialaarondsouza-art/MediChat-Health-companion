@@ -24,7 +24,7 @@ Built using **React, Node.js, Express, Prisma, PostgreSQL, and Gemini API**
 
 ### Chatbot
 
-![Chatbot](./Screenshot/chatbot.png)
+![Chatbot](./Screenshot/)
 
 ### Symptom Checker
 
@@ -32,7 +32,7 @@ Built using **React, Node.js, Express, Prisma, PostgreSQL, and Gemini API**
 
 ### Login Page
 
-![Login](./Screenshot/login.png)
+![Login](./Screenshot/Screenshot 2026-04-24 204614.png)
 
 ---
 
